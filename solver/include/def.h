@@ -10,9 +10,6 @@
 #define DEF_H_
 
 #include <limits>
-#include <string>
-#include <sstream>
-#include <iostream>
 
 #define PROGRAM_NAME "da"
 #define PROGRAM_VERSION "1.0"
