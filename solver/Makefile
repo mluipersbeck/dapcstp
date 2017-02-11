@@ -1,8 +1,8 @@
 
 EXEC      = dapcstp
 CXX       = g++
-INCLUDES  = -I/usr/include -Iinclude
-LIBS      = -L/usr/lib -lboost_timer -lboost_system -lboost_chrono -lboost_program_options -lboost_filesystem
+INCLUDES  = -Iinclude
+LIBS      = -lboost_timer -lboost_system -lboost_chrono -lboost_program_options -lboost_filesystem
 CXXFLAGS  = -std=c++11 -MMD ${INCLUDES}
 
 SRCS      = $(wildcard */*.cpp)
@@ -24,3 +24,4 @@ clean:
 	rm -f $(OBJS) $(DEPS) $(TARGETS) $(EXEC)
 
 -include $(SRCS:%.cpp=%.d)
+
