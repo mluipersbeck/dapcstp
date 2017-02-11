@@ -25,3 +25,4 @@ clean:
 	rm -f $(OBJS) $(DEPS) $(TARGETS) $(EXEC)
 
 -include $(SRCS:%.cpp=%.d)
+
