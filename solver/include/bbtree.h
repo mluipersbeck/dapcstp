@@ -9,6 +9,8 @@
 #ifndef BBTREE_H_
 #define BBTREE_H_
 
+#include <random>
+
 #include "inst.h"
 #include "sol.h"
 #include "bbnode.h"
