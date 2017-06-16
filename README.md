@@ -13,7 +13,7 @@ The technical report can be downloaded [here](http://www.optimization-online.org
 ## Usage
 
 * Build using make.
-* Example usage (Solve instance file 'instance.pcstp' o and writes the solution to file 'instance.sol'):
+* Example usage (solve instance file 'instance.pcstp' of type 'prize-collecting Steiner tree problem' and write the solution to file 'instance.sol'):
 ```
 ./dapcstp instance.pcstp --type pcstp -o instance.sol
 ```
