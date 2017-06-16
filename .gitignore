@@ -1,0 +1,6 @@
+solver/src/*.o
+solver/src/*.d
+solver/src/*.gcda
+instances/*.stp
+solver/dapcstp
+
