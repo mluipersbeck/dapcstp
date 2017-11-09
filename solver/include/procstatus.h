@@ -12,7 +12,7 @@
 #include <iostream>
 #include <limits>
 #include <fstream>
-
+#include <cstdint>
 using namespace std;
 
 /*
@@ -23,17 +23,17 @@ class ProcStatus
 
 private:
 
-	static u_int memlimit;
+	static uint64_t memlimit;
 
 public:
 
-	static u_int maxusedmem;
+	static uint64_t maxusedmem;
 
 	ProcStatus();
 	virtual ~ProcStatus();
 
-	static void setMemLimit( u_int lim );
-	static u_int mem();
+	static void setMemLimit( uint64_t lim );
+	static uint64_t mem();
 	static bool memOK();
 
 };

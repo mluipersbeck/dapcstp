@@ -14,6 +14,8 @@
 #include <boost/heap/d_ary_heap.hpp>
 #include <boost/heap/fibonacci_heap.hpp>
 
+using namespace std;
+
 // stores information about transformation from MWCS to PCSTP
 struct Transformation {
 	weight_t P, minP, sumC;

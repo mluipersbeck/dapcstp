@@ -9,13 +9,13 @@
 #ifndef INST_H_
 #define INST_H_
 
-using namespace std;
-
 #include <vector>
 #include <set>
 
 #include "def.h"
 #include "ds.h"
+
+using namespace std;
 
 class Inst {
 public:

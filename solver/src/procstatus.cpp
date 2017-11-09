@@ -8,21 +8,31 @@
 
 #include "procstatus.h"
 
-u_int ProcStatus::memlimit = numeric_limits<u_int>::max();
-u_int ProcStatus::maxusedmem = 0;
+#include <limits>
+#include <cstdint>
+#if _WIN32
+#include <windows.h>
+#include <psapi.h>
+#endif
+
+using namespace std;
+
+uint64_t ProcStatus::memlimit = std::numeric_limits<uint64_t>::max();
+uint64_t ProcStatus::maxusedmem = 0;
 
 ProcStatus::ProcStatus()
 {
 
 }
 
-void ProcStatus::setMemLimit( u_int lim )
+void ProcStatus::setMemLimit( uint64_t lim )
 {
 	memlimit = lim;
 }
 
-u_int ProcStatus::mem()
+uint64_t ProcStatus::mem()
 {
+#if __linux__
 	unsigned long vsize;
 	{
 		string ignore;
@@ -32,11 +42,17 @@ u_int ProcStatus::mem()
 	}
 	double mb = (double) vsize / (1024 * 1024);
 	return ceil( mb );
+#elif _WIN32
+	HANDLE pHandle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS sMeminfo;
+	GetProcessMemoryInfo(pHandle, &sMeminfo, sizeof(sMeminfo));
+	return sMeminfo.WorkingSetSize;
+#endif
 }
 
 bool ProcStatus::memOK()
 {
-	u_int mb = mem();
+	uint64_t mb = mem();
 	if( mb > maxusedmem ) maxusedmem = mb;
 	if( maxusedmem > memlimit ) {
 		cout << "### Memory-Usage too high: " << maxusedmem << " MB\n";

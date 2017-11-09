@@ -6,8 +6,6 @@
  * \date   2015-05-03
  */
 
-using namespace std;
-
 #include "util.h"
 #include "bbtree.h"
 
@@ -18,10 +16,17 @@ using namespace std;
 
 #include <stdio.h>
 #include <boost/filesystem.hpp>
-#include <sys/resource.h>
 #include <boost/pending/disjoint_sets.hpp>
 
+#if __linux__
+#include <sys/resource.h>
+#elif _WIN32
+#include <windows.h>
+#endif
+
 #include "stats.h"
+
+using namespace std;
 
 Inst load(const char* fn)
 {
@@ -664,6 +669,7 @@ int cntReachable(int r, Sol& sol, Inst& inst)
 
 void enlargeStack()
 {
+#if __linux__
 	const rlim_t kStackSize = 128L * 1024L * 1024L;
 	struct rlimit rl;
 	int result;
@@ -678,6 +684,19 @@ void enlargeStack()
 			}
 		}
 	}
+#endif // __linux__
+}
+
+void enableColor()
+{
+#if _WIN32
+	// this will only work on WIN10 > 14393, expect raw escape sequences on older systems
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode = 0;
+	GetConsoleMode(hOut, &dwMode);
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	SetConsoleMode(hOut, dwMode);
+#endif // _WIN32
 }
 
 Sol loadSol(const char* fn, Inst& inst)
@@ -734,6 +753,7 @@ Sol loadSol(const char* fn, Inst& inst)
 // calls external solver for debugging purposes
 weight_t oracle(Inst& inst)
 {
+#if __linux__
 	FILE* fp;
 	char output[1024];
 	char cmd[256];
@@ -757,6 +777,10 @@ weight_t oracle(Inst& inst)
 	}
 	
 	return response;
+#else
+	fprintf(stderr, "Oracle is not implemented on this platform.\n");
+	return 0.0;
+#endif 
 }
 
 void writeInstance(const char* file, Inst& inst)

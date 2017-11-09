@@ -28,6 +28,7 @@ Sol  genPartialSol(Sol& sol, Inst& inst);
 Inst genInst(Sol& sol, Inst& inst1, vector<int>& amap, vector<int>& nmap);
 
 void enlargeStack();
+void enableColor();
 
 void writeSolution(const char* file, Inst& inst, Sol& sol);
 

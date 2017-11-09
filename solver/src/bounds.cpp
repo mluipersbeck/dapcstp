@@ -6,13 +6,13 @@
  * \date   2015-05-03
  */
 
-using namespace std;
-
 #include "bounds.h"
 #include "util.h"
 #include "options.h"
 #include <stdlib.h>
 #include <iostream>
+
+using namespace std;
 
 template<typename U> weight_t daR(int r, Inst& inst, vector<U>& c, vector<U>& cr, vector<U>& pi, weight_t ub, double eager, Sol* inc, bool heur)
 {

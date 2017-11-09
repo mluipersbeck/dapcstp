@@ -9,6 +9,7 @@
 #ifndef DEF_H_
 #define DEF_H_
 
+#include <cstdint>
 #include <limits>
 
 #define PROGRAM_NAME "da"
@@ -34,7 +35,7 @@
 #define gapP(lb,ub) ((double)abs(ub-lb)*100.0/ub)
 #define EXIT(...) {fprintf(stderr, __VA_ARGS__);exit(1);}
 
-typedef long weight_t;
+typedef std::int64_t weight_t;
 typedef char flag_t;
 
 #endif // DEF_H_
