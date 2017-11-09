@@ -2,9 +2,9 @@
 
 ## Win32 Port
 
-[ ] Check all replacements from `long` to `int64_t`
-[ ] Check `util.cpp:enlargeStack()`
-[x] Color console output (`def.h`), using ANSI sequences is possible on WIN10 > 14393
+- [ ] Check all replacements from `long` to `int64_t`
+- [ ] Check `util.cpp:enlargeStack()`
+- [x] Color console output (`def.h`), using ANSI sequences is possible on WIN10 > 14393
 
 ## Notes for Win32 Programming
 
