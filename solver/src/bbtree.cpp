@@ -19,7 +19,10 @@
 #include "procstatus.h"
 
 #include <stack>
+#include <iostream>
 #include <map>
+
+using namespace std;
 
 BBTree::BBTree(Inst& inst) : inst(inst), inc(inst), inst1(inst), inc1(inst1)
 {
