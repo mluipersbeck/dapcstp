@@ -46,7 +46,8 @@ uint64_t ProcStatus::mem()
 	HANDLE pHandle = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS sMeminfo;
 	GetProcessMemoryInfo(pHandle, &sMeminfo, sizeof(sMeminfo));
-	return sMeminfo.WorkingSetSize;
+	double mb ((double) sMeminfo.WorkingSetSize) / 1024.0;
+	return ceil( mb );
 #endif
 }
 
