@@ -25,6 +25,10 @@ private:
 
 	static uint64_t memlimit;
 
+#if __linux__
+	static size_t page_size;
+#endif
+
 public:
 
 	static uint64_t maxusedmem;
