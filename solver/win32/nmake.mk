@@ -13,7 +13,7 @@ EXE = dapcstp.exe
 INCLUDES  = -I..\include -I$(BOOST)
 LIBS      = -libpath:$(BOOST_LIB) ucrt.lib msvcrt.lib $(STATIC_BOOST_LIBS)
 LDFLAGS   = -nologo -subsystem:console -nxcompat -dynamicbase
-CXXFLAGS  = -O2 -fpic -fexceptions -fno-strict-aliasing -ffunction-sections -gline-tables-only -fomit-frame-pointer -fdata-sections -fno-ms-compatibility -fms-extensions -fno-short-enums -D_WIN32_WINNT=0x0601 -D_CONSOLE -DNDEBUG -DNOMINMAX -D_MT -D_DLL -D_CRT_SECURE_NO_WARNINGS
+CXXFLAGS  = -O2 -Wno-format-extra-args -fpic -fexceptions -fno-strict-aliasing -ffunction-sections -gline-tables-only -fomit-frame-pointer -fdata-sections -fno-ms-compatibility -fms-extensions -fno-short-enums -D_WIN32_WINNT=0x0601 -D_CONSOLE -DNDEBUG -DNOMINMAX -D_MT -D_DLL -D_CRT_SECURE_NO_WARNINGS
 # -DBOOST_ALL_DYN_LINK
 OBJS = ../src/bbnode.obj ../src/bbtree.obj ../src/bounds.obj ../src/cputime.obj ../src/heur.obj ../src/inst.obj ../src/main.obj ../src/options.obj ../src/prep.obj ../src/procstatus.obj ../src/sol.obj ../src/stats.obj ../src/timer.obj ../src/util.obj
 

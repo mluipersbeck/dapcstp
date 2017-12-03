@@ -443,7 +443,7 @@ void Inst::printNodeSet(set<int>& s)
 {
 	printf("nodes = { ");
 	for(int i : s)
-		printf("p(%d)=%ld ", i, p[i]);
+		printf("p(%d)=" PRIu64 " ", i, p[i]);
 	printf("}\n");
 }
 
@@ -451,7 +451,7 @@ void Inst::printArcSet(vector<int>& s)
 {
 	printf("arcs = { ");
 	for(int a : s)
-		printf("c(%d %d)=%ld ", tail[a], head[a], c[a]);
+		printf("c(%d %d)=" PRIu64 " ", tail[a], head[a], c[a]);
 	printf("}  ");
 }
 

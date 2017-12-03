@@ -76,7 +76,7 @@ void BBTree::printRootLine(BBNode* b)
 	printBoundPadded(inst, ub);
 	printf(" %8d %8d", b->n, b->m);
 	printf(" %7.3lf", gapP(format(b->lb, inst), format(ub, inst)));
-	printf(" %8d", ProcStatus::mem());
+	printf(" " PRIu64, ProcStatus::mem());
 	printf("\n");
 }
 

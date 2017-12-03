@@ -10,6 +10,7 @@
 #define DEF_H_
 
 #include <cstdint>
+#include <inttypes.h>
 #include <limits>
 
 #define PROGRAM_NAME "da"
