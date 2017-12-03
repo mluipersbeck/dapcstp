@@ -44,7 +44,7 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 			("bb.nodeselect", po::value<int>(&params.nodeselect)->default_value(0), "node selection strategy")
 			("bb.daiterations", po::value<int>(&params.daiterations)->default_value(10), "number of dual ascent iterations per B&B node (minimum: 1)")
 			("bb.perturbedheur", po::value<bool>(&params.perturbedheur)->default_value(true)->implicit_value(true), "calls the primal heuristic on the support graph with perturbed cost (deactivated automatically if --heur.eps=0)")
-			("bb.nodelimit,m", po::value<int>(&params.nodelimit)->default_value(-1), "node limit")
+			("bb.nodelimit,n", po::value<int>(&params.nodelimit)->default_value(-1), "node limit")
 			;
 
 			// dual ascent parameters
