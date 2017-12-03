@@ -366,7 +366,9 @@ double getBestKnownBound(const char* fn, const char* boundfile)
 	char buf[1024];
 	string name = boost::filesystem::path(params.file).stem().string();
 	if((fp=fopen(boundfile, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
+		// we did not find a bounds file, this should not be a problem
+		return -1;
+		// EXIT("error: file not found: %s\n", boundfile);
 	}
 
 	double dBest = -1;
