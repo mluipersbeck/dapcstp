@@ -12,7 +12,8 @@ DEPS      = $(SRCS:.cpp=.d)
 .PHONY: all debug clean
 
 all: CXXFLAGS += -O3 -DNDEBUG
-all: LIBS := -static $(LIBS)
+#just link boost static
+all: LIBS := -Wl,-Bstatic $(LIBS) -Wl,-Bdynamic
 all: $(EXEC)
 
 debug: CXXFLAGS += -O0 -g3
