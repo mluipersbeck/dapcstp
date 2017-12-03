@@ -814,7 +814,7 @@ void writeInstance(const char* file, Inst& inst)
 		weight_t w = inst.c[ij];
 		if(inst.bigM > 0 && inst.r == inst.tail[ij])
 			w = 999999999999;
-		fprintf(fp, "E %d %d %ld\n", mapn[inst.tail[ij]]+1, mapn[inst.head[ij]]+1, inst.c[ij]);
+		fprintf(fp, "E %d %d " PRIu64 "\n", mapn[inst.tail[ij]]+1, mapn[inst.head[ij]]+1, inst.c[ij]);
 	}
 	fprintf(fp, "END\n\n");
 
@@ -822,13 +822,13 @@ void writeInstance(const char* file, Inst& inst)
 	for(int i = 0; i < inst.n; i++) {
 		if(inst.f0[i]) continue;
 		if(inst.p[i] == WMAX)
-			fprintf(fp, "TP %d %ld\n", mapn[i]+1, 999999999999);
+			fprintf(fp, "TP %d " PRIu64 "\n", mapn[i]+1, 999999999999);
 		else
-			if(inst.p[i] > 0) fprintf(fp, "TP %d %ld\n", mapn[i]+1, inst.p[i]);
+			if(inst.p[i] > 0) fprintf(fp, "TP %d " PRIu64 "\n", mapn[i]+1, inst.p[i]);
 	}
 
 	fprintf(fp, "Root %d\n", mapn[inst.r]+1);
-	fprintf(fp, "Fixed %ld\n", inst.offset);
+	fprintf(fp, "Fixed " PRIu64 "\n", inst.offset);
 	fprintf(fp, "END\n\n");
 
 	fclose(fp);
