@@ -737,29 +737,13 @@ void enableColor(bool enable)
 		return;
 
 #if _WIN32
-	// ANSI colors will only work on WIN10 > 14393
-
-	// Microsoft recommends asking specifically for a version
-	OSVERSIONINFOEX sVerInfo;
-	sVerInfo.dwMajorVersion = 10;
-	sVerInfo.dwMinorVersion = 0;
-	sVerInfo.wServicePackMajor = 0;
-	sVerInfo.wServicePackMinor = 0;
-	sVerInfo.dwBuildNumber = 14393;
-	DWORD dwMask = VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR | VER_BUILDNUMBER;
-	DWORDLONG dwlCondiftion = 0;
-	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_MAJORVERSION, VER_GREATER_EQUAL);
-	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_MINORVERSION, VER_GREATER_EQUAL);
-	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
-	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_BUILDNUMBER, VER_GREATER_EQUAL);
-	if (!VerifyVersionInfo(&sVerInfo, dwMask, dwlCondiftion))
-		return;
-
+	// ANSI colors will only work on WIN10 > 14393 in the new console
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	SetConsoleMode(hOut, dwMode);
+	if (!SetConsoleMode(hOut, dwMode))
+		return;
+
 #endif // _WIN32
 
 	RED = COLOR[1];
