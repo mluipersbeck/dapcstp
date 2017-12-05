@@ -14,8 +14,8 @@ VS_VERSION_INFO	VERSIONINFO
 BEGIN
  BLOCK "StringFileInfo"
  BEGIN
-  // description in english, UTF8
-  BLOCK "4090fde9"
+  // description in english
+  BLOCK "409004b0"
   BEGIN
    VALUE "FileDescription", "DualAscent solver for PCSTP/MWSC"
    VALUE "FileVersion",	PROGRAM_VERSION
@@ -29,8 +29,8 @@ BEGIN
  END
  BLOCK "VarFileInfo"
  BEGIN
-  // program language is english, UTF8
-  VALUE "Translation", 0x4090,0xfde9
+  // program language is english
+  VALUE "Translation", 0x4090,0x0x04b0
  END
 END
 
