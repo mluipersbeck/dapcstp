@@ -24,18 +24,18 @@
 #include <inttypes.h>
 #include <limits>
 
-#define RED      "\x1b[31m"
-#define GREEN    "\x1b[32m"
-#define NORMAL   "\x1b[0m"
-#define CYAN     "\x1b[36m"
-#define YELLOW   "\x1b[33m"
-#define BLUE     "\x1b[34m"
-#define GRAY     "\033[1m\033[30m"
-#define YELLOWBI "\033[1m\033[93m"
-#define GREENBI  "\033[1m\033[92m"
-#define CYANBI   "\033[1m\033[96m"
-#define PURPLEBI "\033[1m\033[95m"
-#define BLUEBI   "\033[1m\033[94m"
+extern const char* RED;
+extern const char* GREEN;
+extern const char* NORMAL;
+extern const char* CYAN;
+extern const char* YELLOW;
+extern const char* BLUE;
+extern const char* GRAY;
+extern const char* YELLOWBI;
+extern const char* GREENBI;
+extern const char* CYANBI;
+extern const char* PURPLEBI;
+extern const char* BLUEBI;
 
 #define WMAX std::numeric_limits<weight_t>::max()
 #define DMAX std::numeric_limits<double>::max()

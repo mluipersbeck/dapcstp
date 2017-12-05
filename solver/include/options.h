@@ -26,6 +26,7 @@ public:
 		std::string soloutfile;
 		std::string statsfile;
 		bool printstatsline;
+		bool colorconsole;
 
 		// problem type
 		std::string type;
