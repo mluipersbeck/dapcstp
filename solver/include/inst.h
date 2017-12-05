@@ -43,6 +43,7 @@ public:
 	bool isInt = false;
 	bool isAsym = false;
 	bool isMWCS = false;
+	bool isRooted = false;
 	Inst* inst1 = nullptr;
 	weight_t bigM = -1;
 

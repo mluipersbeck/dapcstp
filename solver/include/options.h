@@ -82,6 +82,11 @@ public:
 		bool boundbased;
 	};
 
+	/**
+	 * Auto adjust parameters matching instance type
+	 */
+	static void adjust_instance_parameters();
+
 	ProgramOptions(int &argc, char ** &argv);
 	virtual ~ProgramOptions();
 

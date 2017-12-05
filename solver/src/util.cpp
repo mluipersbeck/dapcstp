@@ -15,6 +15,7 @@
 #include "ds.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <boost/filesystem.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 
@@ -60,16 +61,93 @@ const char* BLUEBI = COLOR[0];
 
 using namespace std;
 
+Inst loadPCSTP(FILE* fp);
+Inst loadNWSTP(FILE* fp);
+Inst loadMWCS(FILE* fp);
+void guessInstanceType(FILE* fp);
+const char* DimacsProblemName(Inst& inst);
+
+const char* DimacsProblemName(Inst& inst) {
+	if (params.type.compare("stp") == 0) {
+		return "SPG";
+	} else if (params.type.compare("mwcs") == 0) {
+		return "MWCS";
+	} else if (params.type.compare("pcstp") == 0) {
+		if (inst.isRooted)
+			return "RPCST";
+		else
+			return "PCSPG";
+	} else if (params.type.compare("nwstp") == 0) {
+		return "NWSPG";
+	}
+	
+	abort();
+}
+
+void guessInstanceType(FILE* fp) {
+	char buf[256];
+	char problem[256] = "";
+
+	if (fgets(buf, 256, fp) != NULL) {
+		if ((strncasecmp("33D32945 STP File, STP Format Version 1.0", buf, 41) != 0) &&
+			(strncasecmp("33D32945 STP File, STP Format Version  1.0", buf, 42) != 0)) {
+				fclose(fp);
+				EXIT("Not an STP file\n");
+			}
+	}
+
+	if (params.type.compare("auto") == 0) {
+		while(fgets(buf, 256, fp) != NULL) {
+			if (sscanf(buf, "Problem \"%256c", problem) == 1)
+				break;
+			if (sscanf(buf, "Problem %256c", problem) == 1)
+				break;
+			if (strncasecmp("END", buf, 3) == 0) // only scan first section
+				break;
+		}
+
+		if (strncmp("Asymmetric Prize-Collecting Steiner Problem in Graphs", problem, 53) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Prize-Collecting Steiner Problem in Graphs", problem, 42) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Rooted Prize-Collecting Steiner Problem in Graphs", problem, 42) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Maximum Node Weight Connected Subgraph", problem, 39) == 0) {
+			params.type = "mwcs";
+		} else if (strncmp("Directed Maximum Node Weight Connected Subgraph", problem, 47) == 0) {
+			params.type = "mwcs";
+		} else if (strncmp("Classical Steiner tree problem in graph", problem, 39) == 0) {
+			params.type = "stp";
+		} else if (problem[0] == '\0') {
+			printf("%sWarning: Input File has no type and autodetection was enabled, assuming STP%s\n", YELLOW, NORMAL);
+			params.type = "stp";
+		} else {
+			printf("%sInput File has unknown type and autodetection was enabled%s\n", YELLOW, NORMAL);
+			EXIT("Input File has unknown type: %s\n", problem);
+		}
+	}
+}
+
 Inst load(const char* fn)
 {
 	Inst inst;
+	FILE* fp;
+
+	if((fp = fopen(fn, "r")) == NULL) {
+		EXIT("error: file not found: %s\n", fn);
+	}
+
+	guessInstanceType(fp);
+
+	ProgramOptions::adjust_instance_parameters();
+
 	// all instances are loaded in their APCSTP representation
 	if(params.type.compare("nwstp") == 0 || params.type.compare("stp") == 0) {
-		inst = loadNWSTP(fn);
+		inst = loadNWSTP(fp);
 	} else if(params.type.compare("mwcs") == 0) {
-		inst = loadMWCS(fn);
-	} else if(params.type.compare("pcstp") == 0){
-		inst = loadPCSTP(fn);
+		inst = loadMWCS(fp);
+	} else if(params.type.compare("pcstp") == 0) {
+		inst = loadPCSTP(fp);
 	} else {
 		EXIT("error: specified problem type unknown: %s\n", params.type.c_str());
 	}
@@ -114,17 +192,12 @@ Inst load(const char* fn)
 	return inst;
 }
 
-Inst loadMWCS(const char* fn)
+Inst loadMWCS(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0.0;
@@ -182,17 +255,12 @@ Inst loadMWCS(const char* fn)
 	return inst;
 }
 
-Inst loadNWSTP(const char* fn)
+Inst loadNWSTP(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0;
@@ -287,17 +355,12 @@ Inst loadNWSTP(const char* fn)
 	return inst;
 }
 
-Inst loadPCSTP(const char* fn)
+Inst loadPCSTP(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0.0;
@@ -368,6 +431,7 @@ Inst loadPCSTP(const char* fn)
 		if(sscanf(buf, "RootP %d", &v1) == 1) {
 			inst.r = v1-1;
 			inst.T[inst.r] = true;
+			inst.isRooted = true;
 		}
 	}
 
@@ -437,9 +501,10 @@ void writeSolution(const char* file, Inst& inst, Sol& sol)
 	for(int ij = 0; ij < inst.m; ij++) if(sol.arcs[ij]) nEdges++;
 
 	fprintf(fp, "SECTION Comment\n");
-	fprintf(fp, "Name %s\n", stats.name.c_str());
-	fprintf(fp, "Program %s\n", PROGRAM_NAME);
-	fprintf(fp, "Version %s\n", PROGRAM_VERSION);
+	fprintf(fp, "Name \"%s\"\n", stats.name.c_str());
+	fprintf(fp, "Problem \"%s\"\n", DimacsProblemName(inst));
+	fprintf(fp, "Program \"%s\"\n", PROGRAM_NAME);
+	fprintf(fp, "Version \"%s\"\n", PROGRAM_VERSION);
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION Solutions\n");
