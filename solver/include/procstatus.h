@@ -4,6 +4,9 @@
  *
  * \author Mario Ruthmaier 
  * \date   2012-05-03
+ *
+ * \author Max Resch
+ * \date   2017-12-01
  */
 #ifndef PROCSTATUS_H_
 #define PROCSTATUS_H_
