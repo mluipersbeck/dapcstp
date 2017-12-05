@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	enableColor();
 	enlargeStack();
 	ProgramOptions po(argc, argv);
+	EXIT("%u M\n", ProcStatus::available());
 	ProcStatus::setMemLimit(params.memlimit);
 	srand(params.seed);
 

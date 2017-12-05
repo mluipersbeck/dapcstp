@@ -38,7 +38,7 @@ public:
 	/**
 	 * Set the memory bounds
 	 */
-	static void setMemLimit( uint32_t lim );
+	static void setMemLimit( int lim );
 
 	/**
 	 * Get the amount of memory in MB currently used by this process
@@ -63,7 +63,7 @@ public:
 		uint32_t mb = mem();
 		if( mb > maxusedmem ) maxusedmem = mb;
 		if( maxusedmem > memlimit ) {
-			printf("%s### Memory-Usage too high: " PRIu32 " MB%s\n", RED, maxusedmem, NORMAL);
+			printf("%s### Memory-Usage too high: %" PRIu32 " MB%s\n", RED, maxusedmem, NORMAL);
 			return false;
 		}
 		else return true;
