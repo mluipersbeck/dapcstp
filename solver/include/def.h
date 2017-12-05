@@ -9,12 +9,20 @@
 #ifndef DEF_H_
 #define DEF_H_
 
+#define PROGRAM_NAME "da"
+#define PROJECT_NAME "dapcstp"
+#define PROGRAM_VERSION "1.0"
+#define PROGRAM_MAJOR 1
+#define PROGRAM_MINOR 0
+#define PROGRAM_MICRO 0
+#define PROGRAM_BUILD 0
+
+// for windows rc.exe just parse upto here
+#ifndef RC_INVOKED 
+
 #include <cstdint>
 #include <inttypes.h>
 #include <limits>
-
-#define PROGRAM_NAME "da"
-#define PROGRAM_VERSION "1.0"
 
 #define RED      "\x1b[31m"
 #define GREEN    "\x1b[32m"
@@ -38,5 +46,7 @@
 
 typedef std::int64_t weight_t;
 typedef char flag_t;
+
+#endif
 
 #endif // DEF_H_
