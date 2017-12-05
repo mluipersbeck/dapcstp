@@ -508,10 +508,16 @@ void writeSolution(const char* file, Inst& inst, Sol& sol)
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION Solutions\n");
-	fprintf(fp, "Solution %.6lf %0.3lf\n", format(sol.obj, inst), Timer::total.elapsed().getSeconds());
+	fprintf(fp, "Solution %.6lf %0.3lf\n", format(sol.obj, inst), stats.timeBest);
 	fprintf(fp, "END\n\n");
 
-	fprintf(fp, "SECTION BestSolution\n");
+	fprintf(fp, "SECTION Run\n");
+	fprintf(fp, "Time %0.3lf\n", Timer::total.elapsed().getSeconds());
+	fprintf(fp, "Primal %0.3lf\n", stats.ub);
+	fprintf(fp, "Dual %0.3lf\n", stats.lb);
+	fprintf(fp, "END\n\n");
+
+	fprintf(fp, "SECTION FinalSolution\n");
 	fprintf(fp, "Vertices %d\n", nVertices);
 	for(int i = 0; i < inst.n; i++) {
 		if(sol.nodes[i]) fprintf(fp, "V %d\n", i+1);
