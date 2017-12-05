@@ -28,9 +28,7 @@ STATIC_BOOST_LIBS= \
 	libboost_filesystem-$(TK)$(BOOST_VER).lib
 
 # assume Visual studio paths are set, run from "VS2017 x64 Native Tools Command Prompt"
-
 CXX       = clang
-#%VCINSTALLDIR%\ClangC2\bin\amd64\clang.exe
 INCLUDES  = -I..\include
 
 !IFDEF DEBUG_BUILD
@@ -48,7 +46,7 @@ CXXFLAGS  = -O0 -g3 -fpic -fexceptions
 DEFINES   = -D_MD -D_DLL -D_DEBUG
 !ELSE
 # optimize, use relocatable objects (exe is always relocatable), enable C++ exceptions
-CXXFLAGS  = -O2 -fpic -fexceptions
+CXXFLAGS  = -Ofast -fpic -fexceptions
 # Multi Threaded, use Dynamic Linked Runtime
 DEFINES   = -D_MT -D_DLL
 # compatiblility with linux
@@ -57,13 +55,10 @@ DEFINES   = $(DEFINES) -DNDEBUG
 
 # compatible with Windows 7+ API (especially PSAPIv2)
 DEFINES   = $(DEFINES) -D_WIN32_WINNT=0x0601
-# flag for console application
-DEFINES   = $(DEFINES) -D_CONSOLE
 # do not use min/max macro in windows.h, it conflicts with <limits>
 DEFINES   = $(DEFINES) -DNOMINMAX
 # Do not warn about funtions like sprintf and sscanf
 DEFINES   = $(DEFINES) -D_CRT_SECURE_NO_WARNINGS
-
 
 # NMake has no Glog discovery of files, so specifiy them manualy
 OBJS = ../src/bbnode.obj ../src/bbtree.obj ../src/bounds.obj ../src/cputime.obj \
