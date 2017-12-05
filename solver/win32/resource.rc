@@ -1,9 +1,11 @@
-#include <winver.h>
+// Use UTF8
 #pragma code_page(65001)
+#include <winver.h>
+#include "def.h"
 
 VS_VERSION_INFO	VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION PROGRAM_MAJOR , PROGRAM_MINOR, PROGRAM_MICRO, PROGRAM_BUILD
+ PRODUCTVERSION PROGRAM_MAJOR , PROGRAM_MINOR, PROGRAM_MICRO, PROGRAM_BUILD
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
  FILEFLAGS 0
  FILEOS VOS_NT_WINDOWS32
@@ -12,21 +14,23 @@ VS_VERSION_INFO	VERSIONINFO
 BEGIN
  BLOCK "StringFileInfo"
  BEGIN
-  BLOCK "000904b0"
+  // description in english, UTF8
+  BLOCK "4090fde9"
   BEGIN
    VALUE "FileDescription", "DualAscent solver for PCSTP/MWSC"
-   VALUE "FileVersion",	"1.0"
-   VALUE "InternalName",	"dapcstp.exe"
-   VALUE "LegalCopyright",	"AGPLv3 https://www.gnu.org/licenses/agpl"
-   VALUE "OriginalFilename",	"dapcstp.exe"
-   VALUE "ProductName",	"dapcstp.exe"
-   VALUE "ProductVersion",	"1.0"
-   VALUE "Comments",		"https://github.com/mluipersbeck/dapcstp"
+   VALUE "FileVersion",	PROGRAM_VERSION
+   VALUE "InternalName", PROJECT_NAME
+   VALUE "LegalCopyright", "AGPLv3"
+   VALUE "OriginalFilename","dapcstp.exe"
+   VALUE "ProductName",	PROGRAM_NAME
+   VALUE "ProductVersion", PROGRAM_VERSION
+   VALUE "Comments", "https://github.com/mluipersbeck/dapcstp"
   END
  END
  BLOCK "VarFileInfo"
  BEGIN
-  VALUE "Translation", 0x0009,0x04b0
+  // program language is english, UTF8
+  VALUE "Translation", 0x4090,0xfde9
  END
 END
 
