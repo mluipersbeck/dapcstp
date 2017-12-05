@@ -98,7 +98,7 @@ void guessInstanceType(FILE* fp) {
 
 	if (params.type.compare("auto") == 0) {
 		while(fgets(buf, 256, fp) != NULL) {
-			if (sscanf(buf, "Problem \"%256c", problem) == 1)
+			if (sscanf(buf, "Problem \"%256[^\"]", problem) == 1)
 				break;
 			if (sscanf(buf, "Problem %256c", problem) == 1)
 				break;
