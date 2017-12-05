@@ -90,7 +90,6 @@ uint32_t ProcStatus::total()
 {
 #if __linux__
 	return (ProcStatus::page_size * sysconf(_SC_PHYS_PAGES)) / (1024*1024);
-	return (uint32_t) floor(((double)(ProcStatus::page_size * sysconf(_SC_PHYS_PAGES))) / (1024.0*1024));
 #elif _WIN32
 	MEMORYSTATUSEX sMeminfo;
 	sMeminfo.dwLength = sizeof(sMeminfo);
