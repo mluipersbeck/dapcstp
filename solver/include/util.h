@@ -13,9 +13,6 @@
 #include "sol.h"
 
 Inst load(const char* fn);
-Inst loadPCSTP(const char* fn);
-Inst loadNWSTP(const char* fn);
-Inst loadMWCS(const char* fn);
 
 double getBestKnownBound(const char* fn, const char* boundfile);
 void   printBound(Inst& inst, weight_t bound);

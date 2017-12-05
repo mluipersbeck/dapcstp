@@ -47,6 +47,11 @@ extern const char* BLUEBI;
 typedef std::int64_t weight_t;
 typedef char flag_t;
 
+#ifdef _MSC_VER
+// Microsoft CRT has strncasecmp with a different name
+#define strncasecmp _strnicmp	
+#endif
+
 #endif
 
 #endif // DEF_H_
