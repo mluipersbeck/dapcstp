@@ -8,8 +8,8 @@
 
 #include "procstatus.h"
 
+#include <cmath>
 #include <limits>
-#include <cstdint>
 #if _WIN32
 #include <windows.h>
 #include <psapi.h>
@@ -19,8 +19,8 @@
 
 using namespace std;
 
-uint64_t ProcStatus::memlimit = std::numeric_limits<uint64_t>::max();
-uint64_t ProcStatus::maxusedmem = 0;
+uint32_t ProcStatus::memlimit = std::numeric_limits<uint32_t>::max();
+uint32_t ProcStatus::maxusedmem = 0;
 
 #if __linux__
 size_t ProcStatus::page_size = sysconf(_SC_PAGESIZE);
@@ -31,12 +31,15 @@ ProcStatus::ProcStatus()
 
 }
 
-void ProcStatus::setMemLimit( uint64_t lim )
+void ProcStatus::setMemLimit( uint32_t lim )
 {
-	memlimit = lim;
+	if (lim > 0)
+		memlimit = lim;
+	else if (lim < 0)
+		memlimit = available() * 0.9;
 }
 
-uint64_t ProcStatus::mem()
+uint32_t ProcStatus::mem()
 {
 #if __linux__
 	uint64_t rss;
@@ -58,15 +61,28 @@ uint64_t ProcStatus::mem()
 #endif
 }
 
-bool ProcStatus::memOK()
+uint32_t ProcStatus::available()
 {
-	uint64_t mb = mem();
-	if( mb > maxusedmem ) maxusedmem = mb;
-	if( maxusedmem > memlimit ) {
-		cout << "### Memory-Usage too high: " << maxusedmem << " MB\n";
-		return false;
-	}
-	else return true;
+#if __linux__
+	return (uint32_t) floor(((double)(ProcStatus::page_size * sysconf(_SC_AVPHYS_PAGES))) / (1024.0*1024));
+#elif _WIN32
+	MEMORYSTATUSEX sMeminfo;
+	sMeminfo.dwLength = sizeof(sMeminfo);
+	GlobalMemoryStatusEx(&sMeminfo);
+	return (uint32_t) floor(((double) sMeminfo.ullAvailPhys) / (1024.0*1024.0));
+#endif
+}
+
+uint32_t ProcStatus::total()
+{
+#if __linux__
+	return (uint32_t) floor(((double)(ProcStatus::page_size * sysconf(_SC_PHYS_PAGES))) / (1024.0*1024));
+#elif _WIN32
+	MEMORYSTATUSEX sMeminfo;
+	sMeminfo.dwLength = sizeof(sMeminfo);
+	GlobalMemoryStatusEx(&sMeminfo);
+	return (uint32_t) floor(((double) sMeminfo.ullTotalPhys) / (1024.0*1024.0));
+#endif
 }
 
 ProcStatus::~ProcStatus()

@@ -29,8 +29,8 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 			("printstatsline", po::value<bool>(&params.printstatsline)->default_value(true)->implicit_value(true), "print line containing stats values for quick parsing")
 			("type", po::value<string>(&params.type)->default_value("pcstp"), "instance problem type (pcstp|stp|mwcs|nwstp)")
 			("seed", po::value<int>(&params.seed)->default_value(0), "random seed")
-			("timelimit,t", po::value<double>(&params.timelimit)->default_value(-1), "timelimit")
-			("memlimit,m", po::value<int>(&params.memlimit)->default_value(15 * 1024), "memory limit")
+			("timelimit,t", po::value<double>(&params.timelimit)->default_value(-1), "timelimit (in seconds)")
+			("memlimit,m", po::value<int>(&params.memlimit)->default_value(1024), "memory limit (in MB, 0 for off, -1 for 90% of current available memory)")
 			;
 
 			// B&B parameters
