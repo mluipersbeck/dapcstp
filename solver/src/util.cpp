@@ -27,32 +27,36 @@
 
 #include "stats.h"
 
-static const char COLOR_NOTHING[] =   "";
-static const char COLOR_RED[] =       "\x1b[31m";
-static const char COLOR_GREEN[] =     "\x1b[32m";
-static const char COLOR_NORMAL[] =    "\x1b[0m";
-static const char COLOR_CYAN[] =      "\x1b[36m";
-static const char COLOR_YELLOW[] =    "\x1b[33m";
-static const char COLOR_BLUE[] =      "\x1b[34m";
-static const char COLOR_GRAY[] =      "\x1b[1m\x1b[30m";
-static const char COLOR_YELLOWBI[] =  "\x1b[1m\x1b[93m";
-static const char COLOR_GREENBI[] =   "\x1b[1m\x1b[92m";
-static const char COLOR_CYANBI[] =    "\x1b[1m\x1b[96m";
-static const char COLOR_PURPLEBI[] =  "\x1b[1m\x1b[95m";
-static const char COLOR_BLUEBI[] =    "\x1b[1m\x1b[94m";
+// supported colors
+static const char* COLOR[] = {
+	"",
+	"\x1b[31m",
+	"\x1b[32m",
+	"\x1b[0m",
+	"\x1b[36m",
+	"\x1b[33m",
+	"\x1b[34m",
+	"\x1b[1m\x1b[30m",
+	"\x1b[1m\x1b[93m",
+	"\x1b[1m\x1b[92m",
+	"\x1b[1m\x1b[96m",
+	"\x1b[1m\x1b[95m",
+	"\x1b[1m\x1b[94m"
+};
 
-const char* RED = COLOR_NOTHING;
-const char* GREEN = COLOR_NOTHING;
-const char* NORMAL = COLOR_NOTHING;
-const char* CYAN = COLOR_NOTHING;
-const char* YELLOW = COLOR_NOTHING;
-const char* BLUE = COLOR_NOTHING;
-const char* GRAY = COLOR_NOTHING;
-const char* YELLOWBI = COLOR_NOTHING;
-const char* GREENBI = COLOR_NOTHING;
-const char* CYANBI = COLOR_NOTHING;
-const char* PURPLEBI = COLOR_NOTHING;
-const char* BLUEBI = COLOR_NOTHING;
+// initialize color to blank
+const char* RED = COLOR[0];
+const char* GREEN = COLOR[0];
+const char* NORMAL = COLOR[0];
+const char* CYAN = COLOR[0];
+const char* YELLOW = COLOR[0];
+const char* BLUE = COLOR[0];
+const char* GRAY = COLOR[0];
+const char* YELLOWBI = COLOR[0];
+const char* GREENBI = COLOR[0];
+const char* CYANBI = COLOR[0];
+const char* PURPLEBI = COLOR[0];
+const char* BLUEBI = COLOR[0];
 
 using namespace std;
 
@@ -758,18 +762,18 @@ void enableColor(bool enable)
 	SetConsoleMode(hOut, dwMode);
 #endif // _WIN32
 
-	RED = COLOR_RED;
-	GREEN = COLOR_GREEN;
-	NORMAL = COLOR_NORMAL;
-	CYAN = COLOR_CYAN;
-	YELLOW = COLOR_YELLOW;
-	BLUE = COLOR_BLUE;
-	GRAY = COLOR_GRAY;
-	YELLOWBI = COLOR_YELLOWBI;
-	GREENBI = COLOR_GREENBI;
-	CYANBI = COLOR_CYANBI;
-	PURPLEBI = COLOR_PURPLEBI;
-	BLUEBI = COLOR_BLUEBI;
+	RED = COLOR[1];
+	GREEN = COLOR[2];
+	NORMAL = COLOR[3];
+	CYAN = COLOR[4];
+	YELLOW = COLOR[5];
+	BLUE = COLOR[6];
+	GRAY = COLOR[7];
+	YELLOWBI = COLOR[8];
+	GREENBI = COLOR[9];
+	CYANBI = COLOR[10];
+	PURPLEBI = COLOR[11];
+	BLUEBI = COLOR[12];
 }
 
 Sol loadSol(const char* fn, Inst& inst)
