@@ -19,12 +19,40 @@
 #include <boost/pending/disjoint_sets.hpp>
 
 #if __linux__
+#include <unistd.h>
 #include <sys/resource.h>
 #elif _WIN32
 #include <windows.h>
 #endif
 
 #include "stats.h"
+
+static const char COLOR_NOTHING[] =   "";
+static const char COLOR_RED[] =       "\x1b[31m";
+static const char COLOR_GREEN[] =     "\x1b[32m";
+static const char COLOR_NORMAL[] =    "\x1b[0m";
+static const char COLOR_CYAN[] =      "\x1b[36m";
+static const char COLOR_YELLOW[] =    "\x1b[33m";
+static const char COLOR_BLUE[] =      "\x1b[34m";
+static const char COLOR_GRAY[] =      "\x1b[1m\x1b[30m";
+static const char COLOR_YELLOWBI[] =  "\x1b[1m\x1b[93m";
+static const char COLOR_GREENBI[] =   "\x1b[1m\x1b[92m";
+static const char COLOR_CYANBI[] =    "\x1b[1m\x1b[96m";
+static const char COLOR_PURPLEBI[] =  "\x1b[1m\x1b[95m";
+static const char COLOR_BLUEBI[] =    "\x1b[1m\x1b[94m";
+
+const char* RED = COLOR_NOTHING;
+const char* GREEN = COLOR_NOTHING;
+const char* NORMAL = COLOR_NOTHING;
+const char* CYAN = COLOR_NOTHING;
+const char* YELLOW = COLOR_NOTHING;
+const char* BLUE = COLOR_NOTHING;
+const char* GRAY = COLOR_NOTHING;
+const char* YELLOWBI = COLOR_NOTHING;
+const char* GREENBI = COLOR_NOTHING;
+const char* CYANBI = COLOR_NOTHING;
+const char* PURPLEBI = COLOR_NOTHING;
+const char* BLUEBI = COLOR_NOTHING;
 
 using namespace std;
 
@@ -689,16 +717,59 @@ void enlargeStack()
 #endif // __linux__
 }
 
-void enableColor()
+void enableColor(bool enable)
 {
-#if _WIN32
-	// this will only work on WIN10 > 14393, expect raw escape sequences on older systems
+	if (!enable)
+		return;
+
+	bool terminal;
+#if __unix__
+	terminal = isatty(STDOUT_FILENO);
+#elif _WIN32
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	terminal = (GetFileType(hOut) == FILE_TYPE_CHAR);
+#endif
+	if (!terminal)
+		return;
+
+#if _WIN32
+	// ANSI colors will only work on WIN10 > 14393
+
+	// Microsoft recommends asking specifically for a version
+	OSVERSIONINFOEX sVerInfo;
+	sVerInfo.dwMajorVersion = 10;
+	sVerInfo.dwMinorVersion = 0;
+	sVerInfo.wServicePackMajor = 0;
+	sVerInfo.wServicePackMinor = 0;
+	sVerInfo.dwBuildNumber = 14393;
+	DWORD dwMask = VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR | VER_BUILDNUMBER;
+	DWORDLONG dwlCondiftion = 0;
+	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_MINORVERSION, VER_GREATER_EQUAL);
+	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
+	dwlCondiftion = VerSetConditionMask(dwlCondiftion, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+	if (!VerifyVersionInfo(&sVerInfo, dwMask, dwlCondiftion))
+		return;
+
 	DWORD dwMode = 0;
 	GetConsoleMode(hOut, &dwMode);
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	SetConsoleMode(hOut, dwMode);
 #endif // _WIN32
+
+	RED = COLOR_RED;
+	GREEN = COLOR_GREEN;
+	NORMAL = COLOR_NORMAL;
+	CYAN = COLOR_CYAN;
+	YELLOW = COLOR_YELLOW;
+	BLUE = COLOR_BLUE;
+	GRAY = COLOR_GRAY;
+	YELLOWBI = COLOR_YELLOWBI;
+	GREENBI = COLOR_GREENBI;
+	CYANBI = COLOR_CYANBI;
+	PURPLEBI = COLOR_PURPLEBI;
+	BLUEBI = COLOR_BLUEBI;
 }
 
 Sol loadSol(const char* fn, Inst& inst)

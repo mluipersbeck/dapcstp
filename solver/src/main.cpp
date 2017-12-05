@@ -26,9 +26,9 @@ double bestKnown = -1;
 
 int main(int argc, char *argv[])
 {
-	enableColor();
 	enlargeStack();
 	ProgramOptions po(argc, argv);
+	enableColor(params.colorconsole);
 	ProcStatus::setMemLimit(params.memlimit);
 	srand(params.seed);
 

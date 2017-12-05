@@ -35,3 +35,4 @@ BEGIN
 END
 
 1 ICON "icon.ico"
+1 24 "manifest.xml"

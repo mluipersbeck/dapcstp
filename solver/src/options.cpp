@@ -31,6 +31,7 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 			("seed", po::value<int>(&params.seed)->default_value(0), "random seed")
 			("timelimit,t", po::value<double>(&params.timelimit)->default_value(-1), "timelimit (in seconds)")
 			("memlimit,m", po::value<int>(&params.memlimit)->default_value(1024), "memory limit (in MB, 0 for off, -1 for 90% of current available memory)")
+			("color", po::value<bool>(&params.colorconsole)->default_value(true)->implicit_value(true), "color console output, if supported")
 			;
 
 			// B&B parameters
