@@ -4,6 +4,9 @@
  *
  * \author Mario Ruthmaier 
  * \date   2015-05-03
+ * 
+ * \author Max Resch
+ * \date   2017-12-01
  */
 
 #include "procstatus.h"
@@ -31,7 +34,7 @@ ProcStatus::ProcStatus()
 
 }
 
-void ProcStatus::setMemLimit( uint32_t lim )
+void ProcStatus::setMemLimit( int lim )
 {
 	if (lim > 0)
 		memlimit = lim;
@@ -46,42 +49,52 @@ uint32_t ProcStatus::mem()
 
 	FILE* fd = fopen("/proc/self/statm", "r");
 	// get resource set size
-	fscanf(fd, "%*s %lu", &rss);
+	fscanf(fd, "%*s %" SCNu64, &rss);
 	fclose(fd);
 
 	// statm provides sizes in number of pages
-	double mb = ((double) (rss * ProcStatus::page_size)) / (1024.0*1024.0);
-	return ceil( mb );
+	return (rss * ProcStatus::page_size) / (1024*1024);
 #elif _WIN32
 	HANDLE pHandle = GetCurrentProcess();
 	PROCESS_MEMORY_COUNTERS sMeminfo;
 	GetProcessMemoryInfo(pHandle, &sMeminfo, sizeof(sMeminfo));
-	double mb = ((double) sMeminfo.WorkingSetSize) / (1024.0*1024.0);
-	return ceil( mb );
+	return sMeminfo.WorkingSetSize / (1024*1024);
 #endif
 }
 
 uint32_t ProcStatus::available()
 {
 #if __linux__
-	return (uint32_t) floor(((double)(ProcStatus::page_size * sysconf(_SC_AVPHYS_PAGES))) / (1024.0*1024));
+	uint64_t memory;
+	char buf[128];
+
+	FILE* fd = fopen("/proc/meminfo", "r");
+	while (fgets(buf, 128, fd) != NULL) {
+		// Linux Kernel > 3.14 Provides an explicit estimate
+		if (sscanf(buf, "MemAvailable: %" SCNu64, &memory) == 1)
+			break;
+	}
+	fclose(fd);
+
+	// statm provides sizes in number of pages
+	return memory / 1024;
 #elif _WIN32
 	MEMORYSTATUSEX sMeminfo;
 	sMeminfo.dwLength = sizeof(sMeminfo);
 	GlobalMemoryStatusEx(&sMeminfo);
-	return (uint32_t) floor(((double) sMeminfo.ullAvailPhys) / (1024.0*1024.0));
+	return sMeminfo.ullAvailPhys / (1024*1024);
 #endif
 }
 
 uint32_t ProcStatus::total()
 {
 #if __linux__
-	return (uint32_t) floor(((double)(ProcStatus::page_size * sysconf(_SC_PHYS_PAGES))) / (1024.0*1024));
+	return (ProcStatus::page_size * sysconf(_SC_PHYS_PAGES)) / (1024*1024);
 #elif _WIN32
 	MEMORYSTATUSEX sMeminfo;
 	sMeminfo.dwLength = sizeof(sMeminfo);
 	GlobalMemoryStatusEx(&sMeminfo);
-	return (uint32_t) floor(((double) sMeminfo.ullTotalPhys) / (1024.0*1024.0));
+	return sMeminfo.ullTotalPhys / (1024*1024);
 #endif
 }
 
