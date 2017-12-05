@@ -25,7 +25,7 @@ STATIC_BOOST_LIBS= \
 
 # assume Visual studio paths are set, run from "VS2017 x64 Native Tools Command Prompt"
 
-CXX = clang.exe
+CXX = clang
 #%VCINSTALLDIR%\ClangC2\bin\amd64\clang.exe
 EXE = dapcstp.exe
 INCLUDES  = -I..\include
@@ -59,12 +59,12 @@ clean:
 	-del ..\src\*.obj ..\$(EXE)
 
 .cpp.obj:
-	@set "INCLUDE=$(INCLUDE);$(BOOST)"
-	"$(CXX)" $(INCLUDES) $(CXXFLAGS) -o$@ -c $<
+	@set INCLUDE=$(INCLUDE);$(BOOST)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -o$@ -c $<
 
 .rc.res:
 	rc /nologo $(INCLUDES) $<
 
 ../$(EXE): $(OBJS) resource.res
-	@set "LIB=$(LIB);$(BOOST_LIB)"
+	@set LIB=$(LIB);$(BOOST_LIB)
 	link -out:$@ $(LDFLAGS) $(LIBS) $(OBJS) resource.res
