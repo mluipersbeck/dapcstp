@@ -12,6 +12,8 @@ $WK_VERSION = "$WK_VERSION.0"
 
 $CLANG_VERSION = Get-ChildItem "$VC_PATH\Tools\ClangC2"
 
+$old_path = $Env:PATH
+
 $Env:PATH = "$VC_PATH\Tools\MSVC\$VC_VERSION\bin\Hostx64\x64"
 $Env:PATH += ";$VC_PATH\Tools\ClangC2\$CLANG_VERSION\bin\HostX64"
 $Env:PATH += ";$WK_PATH\bin\$WK_VERSION\x64"
@@ -24,4 +26,12 @@ $Env:LIB += ";$VC_PATH\Tools\MSVC\$VC_VERSION\lib\x64"
 
 $Env:BOOST = "$Env:UserProfile\Downloads\boost_1_65_1"
 
-nmake /f nmake.mk $args
+if ($args.Length -gt 0 -and $args[0] -eq "debug") {
+    $ENV:DEBUG_BUILD=1
+    nmake /f nmake.mk
+    Remove-Item Env:\DEBUG_BUILD
+} else {
+    nmake /f nmake.mk $args
+}
+
+$Env:PATH = $old_path 
