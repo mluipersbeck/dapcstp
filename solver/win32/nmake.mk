@@ -8,8 +8,12 @@
 # Path to boost libraries
 BOOST_LIB="$(BOOST)\lib64-msvc-14.1"
 
-# boost library toolkit prefix (Visual Studio 14.1, Multi Threaded) 
+# boost library toolkit prefix (Visual Studio 14.1, Multi Threaded)
+!IFDEF DEBUG_BUILD
+TK=vc141-mt-gd-
+!ELSE
 TK=vc141-mt-
+!ENDIF
 
 # boost library version
 BOOST_VER=1_65_1
@@ -25,28 +29,41 @@ STATIC_BOOST_LIBS= \
 
 # assume Visual studio paths are set, run from "VS2017 x64 Native Tools Command Prompt"
 
-CXX = clang
+CXX       = clang
 #%VCINSTALLDIR%\ClangC2\bin\amd64\clang.exe
-EXE = dapcstp.exe
 INCLUDES  = -I..\include
+
+!IFDEF DEBUG_BUILD
+EXE       = dapcstp_d.exe
+LIBS      = ucrtd.lib msvcrtd.lib $(STATIC_BOOST_LIBS)
+LDFLAGS   = -nologo -subsystem:console -nxcompat -dynamicbase -debug:full
+!ELSE
+EXE       = dapcstp.exe
 LIBS      = ucrt.lib msvcrt.lib $(STATIC_BOOST_LIBS)
-
 LDFLAGS   = -nologo -subsystem:console -nxcompat -dynamicbase
+!ENDIF
 
+!IFDEF DEBUG_BUILD
+CXXFLAGS  = -O0 -g3 -fpic -fexceptions
+DEFINES   = -D_MD -D_DLL -D_DEBUG
+!ELSE
 # optimize, use relocatable objects (exe is always relocatable), enable C++ exceptions
-CXXFLAGS  =  -O2 -fpic -fexceptions
-# compatible with Windows 7+ API (especially PSAPIv2)
-CXXFLAGS  = $(CXXFLAGS) -D_WIN32_WINNT=0x0601
-# flag for console application
-CXXFLAGS  = $(CXXFLAGS) -D_CONSOLE
-# do not use min/max macro in windows.h, it conflicts with <limits>
-CXXFLAGS  = $(CXXFLAGS) -DNOMINMAX
+CXXFLAGS  = -O2 -fpic -fexceptions
 # Multi Threaded, use Dynamic Linked Runtime
-CXXFLAGS  = $(CXXFLAGS) -D_MT -D_DLL
-# Do not warn about funtions like sprintf and sscanf
-CXXFLAGS  = $(CXXFLAGS) -D_CRT_SECURE_NO_WARNINGS
+DEFINES   = -D_MT -D_DLL
 # compatiblility with linux
-CXXFLAGS  = $(CXXFLAGS) -DNDEBUG
+DEFINES   = $(DEFINES) -DNDEBUG
+!ENDIF
+
+# compatible with Windows 7+ API (especially PSAPIv2)
+DEFINES   = $(DEFINES) -D_WIN32_WINNT=0x0601
+# flag for console application
+DEFINES   = $(DEFINES) -D_CONSOLE
+# do not use min/max macro in windows.h, it conflicts with <limits>
+DEFINES   = $(DEFINES) -DNOMINMAX
+# Do not warn about funtions like sprintf and sscanf
+DEFINES   = $(DEFINES) -D_CRT_SECURE_NO_WARNINGS
+
 
 # NMake has no Glog discovery of files, so specifiy them manualy
 OBJS = ../src/bbnode.obj ../src/bbtree.obj ../src/bounds.obj ../src/cputime.obj \
@@ -60,10 +77,10 @@ clean:
 
 .cpp.obj:
 	@set INCLUDE=$(INCLUDE);$(BOOST)
-	$(CXX) $(INCLUDES) $(CXXFLAGS) -o$@ -c $<
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(DEFINES) -o$@ -c $<
 
 .rc.res:
-	rc /nologo $(INCLUDES) $<
+	rc -nologo $(INCLUDES) $(DEFINES) $<
 
 ../$(EXE): $(OBJS) resource.res
 	@set LIB=$(LIB);$(BOOST_LIB)
