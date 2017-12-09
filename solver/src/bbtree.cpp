@@ -113,6 +113,8 @@ bool BBTree::updatePrimal(Inst& inst, Sol& sol)
 
 		ub = sol.obj;
 
+		stats.solutions.emplace_back(std::make_tuple(sol.obj, Timer::total.elapsed().getSeconds()));
+
 		return true;
 	}
 
@@ -218,7 +220,6 @@ void BBTree::initHeur()
 
 		// an improve solution may also be produced during makeRoot, which is evaluated at once
 		bImproved |= (ub < oldub);
-
 		printHeurLine(iter, sol.obj, bImproved, tIteration.elapsed().getSeconds());
 
 		// if bound is available on the rooted equivalent instance using big-M arcs,
