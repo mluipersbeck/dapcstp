@@ -508,13 +508,22 @@ void writeSolution(const char* file, Inst& inst, Sol& sol)
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION Solutions\n");
-	fprintf(fp, "Solution %.6lf %0.3lf\n", format(sol.obj, inst), stats.timeBest);
+	for(auto tp: stats.solutions)
+		if(stats.isInt)
+			fprintf(fp, "Solution %0.0lf %0.3lf\n", get<0>(tp), get<1>(tp));
+		else
+			fprintf(fp, "Solution %0.6lf %0.3lf\n", get<0>(tp), get<1>(tp));
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION Run\n");
 	fprintf(fp, "Time %0.3lf\n", Timer::total.elapsed().getSeconds());
-	fprintf(fp, "Primal %0.3lf\n", stats.ub);
-	fprintf(fp, "Dual %0.3lf\n", stats.lb);
+	if(stats.isInt) {
+		fprintf(fp, "Primal %0.0lf\n", stats.ub);
+		fprintf(fp, "Dual %0.0lf\n", stats.lb);
+	} else {
+		fprintf(fp, "Primal %0.3lf\n", stats.ub);
+		fprintf(fp, "Dual %0.3lf\n", stats.lb);
+	}
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION FinalSolution\n");

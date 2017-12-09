@@ -9,8 +9,11 @@
 #ifndef STATS_H_
 #define STATS_H_
 
-#include <def.h>
-#include <inst.h>
+#include "def.h"
+#include "inst.h"
+
+#include <deque>
+#include <tuple>
 
 class ProgramStats {
 public:
@@ -48,6 +51,8 @@ public:
 		bool isInt = false;
 		bool isAsym = false;
 		bool valid = false;
+
+		std::deque<std::tuple<double, double>> solutions;
 	};
 
 	static void writeStats(const char* file);
