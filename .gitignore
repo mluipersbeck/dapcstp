@@ -1,6 +1,9 @@
 solver/src/*.o
+solver/src/*.obj
 solver/src/*.d
 solver/src/*.gcda
 instances/*.stp
 solver/dapcstp
-
+solver/dapcstp.exe
+solver/win32/*.res
+solver/*.dll

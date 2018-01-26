@@ -27,10 +27,11 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 			("bounds", po::value<string>(&params.boundsfile)->default_value(""), "bounds file for input")
 			("precision", po::value<long>(&params.precision)->default_value(-1), "decimal precision read from file (-1: choose automatically 12 for mwcs and 6 for the rest)")
 			("printstatsline", po::value<bool>(&params.printstatsline)->default_value(true)->implicit_value(true), "print line containing stats values for quick parsing")
-			("type", po::value<string>(&params.type)->default_value("pcstp"), "instance problem type (pcstp|stp|mwcs|nwstp)")
+			("type", po::value<string>(&params.type)->default_value("auto"), "instance problem type (pcstp|stp|mwcs|nwstp)")
 			("seed", po::value<int>(&params.seed)->default_value(0), "random seed")
-			("timelimit,t", po::value<double>(&params.timelimit)->default_value(-1), "timelimit")
-			("memlimit,m", po::value<int>(&params.memlimit)->default_value(15 * 1024), "memory limit")
+			("timelimit,t", po::value<double>(&params.timelimit)->default_value(-1), "timelimit (in seconds)")
+			("memlimit,m", po::value<int>(&params.memlimit)->default_value(1024), "memory limit (in MB, 0 for off, -1 for 90% of current available memory)")
+			("color", po::value<bool>(&params.colorconsole)->default_value(true)->implicit_value(true), "color console output, if supported")
 			;
 
 			// B&B parameters
@@ -44,7 +45,7 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 			("bb.nodeselect", po::value<int>(&params.nodeselect)->default_value(0), "node selection strategy")
 			("bb.daiterations", po::value<int>(&params.daiterations)->default_value(10), "number of dual ascent iterations per B&B node (minimum: 1)")
 			("bb.perturbedheur", po::value<bool>(&params.perturbedheur)->default_value(true)->implicit_value(true), "calls the primal heuristic on the support graph with perturbed cost (deactivated automatically if --heur.eps=0)")
-			("bb.nodelimit,m", po::value<int>(&params.nodelimit)->default_value(-1), "node limit")
+			("bb.nodelimit,n", po::value<int>(&params.nodelimit)->default_value(-1), "node limit")
 			;
 
 			// dual ascent parameters
@@ -107,22 +108,6 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 	po::store(po::command_line_parser(argc, argv).options(all).positional(descPos).run(), vm);
 	po::notify(vm);
 
-	int p = params.precision;
-
-	// autoselect precision for convenience
-	if(p < 0) {
-		if(params.type.compare("mwcs") == 0) {
-			p = 12;
-		} else {
-			p = 6;
-		}
-	}
-
-	params.precision = 1;
-	for(int i = 0; i < p; i++) {
-		params.precision *= 10;
-	}
-
 	if (vm.count("help")) {
 	    cout << general_options << endl;
 	    cout << bb_options << endl;
@@ -139,8 +124,25 @@ ProgramOptions::ProgramOptions(int &argc, char ** &argv)
 	}
 }
 
+void ProgramOptions::adjust_instance_parameters() {
+	int p = params.precision;
+
+	// autoselect precision for convenience
+	if(p < 0) {
+		if(params.type.compare("mwcs") == 0) {
+			p = 12;
+		} else {
+			p = 6;
+		}
+	}
+
+	params.precision = 1;
+	for(int i = 0; i < p; i++) {
+		params.precision *= 10;
+	}
+}
+
 ProgramOptions::~ProgramOptions()
 {
 
 }
-

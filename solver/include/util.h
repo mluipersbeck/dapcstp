@@ -13,9 +13,6 @@
 #include "sol.h"
 
 Inst load(const char* fn);
-Inst loadPCSTP(const char* fn);
-Inst loadNWSTP(const char* fn);
-Inst loadMWCS(const char* fn);
 
 double getBestKnownBound(const char* fn, const char* boundfile);
 void   printBound(Inst& inst, weight_t bound);
@@ -28,6 +25,7 @@ Sol  genPartialSol(Sol& sol, Inst& inst);
 Inst genInst(Sol& sol, Inst& inst1, vector<int>& amap, vector<int>& nmap);
 
 void enlargeStack();
+void enableColor(bool enable);
 
 void writeSolution(const char* file, Inst& inst, Sol& sol);
 

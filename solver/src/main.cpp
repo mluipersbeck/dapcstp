@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 {
 	enlargeStack();
 	ProgramOptions po(argc, argv);
+	enableColor(params.colorconsole);
 	ProcStatus::setMemLimit(params.memlimit);
 	srand(params.seed);
 
@@ -39,6 +40,10 @@ int main(int argc, char *argv[])
 
 Inst load()
 {
+	if(params.boundsfile.empty()) {
+		params.boundsfile = "bounds";
+	}
+
 	// load instance file
 	if(params.file.empty()) {
 		EXIT("Input file missing.\n");
@@ -55,11 +60,8 @@ Inst load()
 	}
 
 	stats.name = boost::filesystem::path(params.file).stem().string();
+	bestKnown = getBestKnownBound(params.file.c_str(), params.boundsfile.c_str());
 
-	if(!params.boundsfile.empty()) {
-		bestKnown = getBestKnownBound(params.file.c_str(), params.boundsfile.c_str());
-	}
-	
 	printf("[ %sload%s   ] [ %s%5.1lf s%s ] ", GREEN, NORMAL, GRAY, tLoad.elapsed().getSeconds(), NORMAL);
 	printf("n %5d m %5d t %5d ", inst.n, inst.m, inst.t);
 	printf("integer %d asym %d bidir %5.2lf ", inst.isInt, inst.isAsym, stats.bidirect);

@@ -26,6 +26,7 @@ public:
 		std::string soloutfile;
 		std::string statsfile;
 		bool printstatsline;
+		bool colorconsole;
 
 		// problem type
 		std::string type;
@@ -80,6 +81,11 @@ public:
 		bool nr;
 		bool boundbased;
 	};
+
+	/**
+	 * Auto adjust parameters matching instance type
+	 */
+	static void adjust_instance_parameters();
 
 	ProgramOptions(int &argc, char ** &argv);
 	virtual ~ProgramOptions();

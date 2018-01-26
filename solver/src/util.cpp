@@ -6,8 +6,6 @@
  * \date   2015-05-03
  */
 
-using namespace std;
-
 #include "util.h"
 #include "bbtree.h"
 
@@ -17,22 +15,139 @@ using namespace std;
 #include "ds.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <boost/filesystem.hpp>
-#include <sys/resource.h>
 #include <boost/pending/disjoint_sets.hpp>
 
+#if __linux__
+#include <unistd.h>
+#include <sys/resource.h>
+#elif _WIN32
+#include <windows.h>
+#endif
+
 #include "stats.h"
+
+// supported colors
+static const char* COLOR[] = {
+	"",
+	"\x1b[31m",
+	"\x1b[32m",
+	"\x1b[0m",
+	"\x1b[36m",
+	"\x1b[33m",
+	"\x1b[34m",
+	"\x1b[1m\x1b[30m",
+	"\x1b[1m\x1b[93m",
+	"\x1b[1m\x1b[92m",
+	"\x1b[1m\x1b[96m",
+	"\x1b[1m\x1b[95m",
+	"\x1b[1m\x1b[94m"
+};
+
+// initialize color to blank
+const char* RED = COLOR[0];
+const char* GREEN = COLOR[0];
+const char* NORMAL = COLOR[0];
+const char* CYAN = COLOR[0];
+const char* YELLOW = COLOR[0];
+const char* BLUE = COLOR[0];
+const char* GRAY = COLOR[0];
+const char* YELLOWBI = COLOR[0];
+const char* GREENBI = COLOR[0];
+const char* CYANBI = COLOR[0];
+const char* PURPLEBI = COLOR[0];
+const char* BLUEBI = COLOR[0];
+
+using namespace std;
+
+Inst loadPCSTP(FILE* fp);
+Inst loadNWSTP(FILE* fp);
+Inst loadMWCS(FILE* fp);
+void guessInstanceType(FILE* fp);
+const char* DimacsProblemName(Inst& inst);
+
+const char* DimacsProblemName(Inst& inst) {
+	if (params.type.compare("stp") == 0) {
+		return "SPG";
+	} else if (params.type.compare("mwcs") == 0) {
+		return "MWCS";
+	} else if (params.type.compare("pcstp") == 0) {
+		if (inst.isRooted)
+			return "RPCST";
+		else
+			return "PCSPG";
+	} else if (params.type.compare("nwstp") == 0) {
+		return "NWSPG";
+	}
+	
+	abort();
+}
+
+void guessInstanceType(FILE* fp) {
+	char buf[256];
+	char problem[256] = "";
+
+	if (fgets(buf, 256, fp) != NULL) {
+		if ((strncasecmp("33D32945 STP File, STP Format Version 1.0", buf, 41) != 0) &&
+			(strncasecmp("33D32945 STP File, STP Format Version  1.0", buf, 42) != 0)) {
+				fclose(fp);
+				EXIT("Not an STP file\n");
+			}
+	}
+
+	if (params.type.compare("auto") == 0) {
+		while(fgets(buf, 256, fp) != NULL) {
+			if (sscanf(buf, "Problem \"%256[^\"]", problem) == 1)
+				break;
+			if (sscanf(buf, "Problem %256c", problem) == 1)
+				break;
+			if (strncasecmp("END", buf, 3) == 0) // only scan first section
+				break;
+		}
+
+		if (strncmp("Asymmetric Prize-Collecting Steiner Problem in Graphs", problem, 53) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Prize-Collecting Steiner Problem in Graphs", problem, 42) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Rooted Prize-Collecting Steiner Problem in Graphs", problem, 42) == 0) {
+			params.type = "pcstp";
+		} else if (strncmp("Maximum Node Weight Connected Subgraph", problem, 39) == 0) {
+			params.type = "mwcs";
+		} else if (strncmp("Directed Maximum Node Weight Connected Subgraph", problem, 47) == 0) {
+			params.type = "mwcs";
+		} else if (strncmp("Classical Steiner tree problem in graph", problem, 39) == 0) {
+			params.type = "stp";
+		} else if (problem[0] == '\0') {
+			printf("%sWarning: Input File has no type and autodetection was enabled, assuming STP%s\n", YELLOW, NORMAL);
+			params.type = "stp";
+		} else {
+			printf("%sInput File has unknown type and autodetection was enabled%s\n", YELLOW, NORMAL);
+			EXIT("Input File has unknown type: %s\n", problem);
+		}
+	}
+}
 
 Inst load(const char* fn)
 {
 	Inst inst;
+	FILE* fp;
+
+	if((fp = fopen(fn, "r")) == NULL) {
+		EXIT("error: file not found: %s\n", fn);
+	}
+
+	guessInstanceType(fp);
+
+	ProgramOptions::adjust_instance_parameters();
+
 	// all instances are loaded in their APCSTP representation
 	if(params.type.compare("nwstp") == 0 || params.type.compare("stp") == 0) {
-		inst = loadNWSTP(fn);
+		inst = loadNWSTP(fp);
 	} else if(params.type.compare("mwcs") == 0) {
-		inst = loadMWCS(fn);
-	} else if(params.type.compare("pcstp") == 0){
-		inst = loadPCSTP(fn);
+		inst = loadMWCS(fp);
+	} else if(params.type.compare("pcstp") == 0) {
+		inst = loadPCSTP(fp);
 	} else {
 		EXIT("error: specified problem type unknown: %s\n", params.type.c_str());
 	}
@@ -77,17 +192,12 @@ Inst load(const char* fn)
 	return inst;
 }
 
-Inst loadMWCS(const char* fn)
+Inst loadMWCS(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0.0;
@@ -145,17 +255,12 @@ Inst loadMWCS(const char* fn)
 	return inst;
 }
 
-Inst loadNWSTP(const char* fn)
+Inst loadNWSTP(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0;
@@ -250,17 +355,12 @@ Inst loadNWSTP(const char* fn)
 	return inst;
 }
 
-Inst loadPCSTP(const char* fn)
+Inst loadPCSTP(FILE* fp)
 {
-	FILE *fp;
 	char buf[256];
 	int n, m, t, v1, v2, r;
 	double w, prize;
 	int ij = 0;
-
-	if((fp=fopen(fn, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
-	}
 
 	Inst inst;
 	inst.offset = 0.0;
@@ -331,6 +431,7 @@ Inst loadPCSTP(const char* fn)
 		if(sscanf(buf, "RootP %d", &v1) == 1) {
 			inst.r = v1-1;
 			inst.T[inst.r] = true;
+			inst.isRooted = true;
 		}
 	}
 
@@ -361,7 +462,9 @@ double getBestKnownBound(const char* fn, const char* boundfile)
 	char buf[1024];
 	string name = boost::filesystem::path(params.file).stem().string();
 	if((fp=fopen(boundfile, "r")) == NULL) {
-		EXIT("error: file not found: %s\n", fn);
+		// we did not find a bounds file, this should not be a problem
+		return -1;
+		// EXIT("error: file not found: %s\n", boundfile);
 	}
 
 	double dBest = -1;
@@ -398,16 +501,32 @@ void writeSolution(const char* file, Inst& inst, Sol& sol)
 	for(int ij = 0; ij < inst.m; ij++) if(sol.arcs[ij]) nEdges++;
 
 	fprintf(fp, "SECTION Comment\n");
-	fprintf(fp, "Name %s\n", stats.name.c_str());
-	fprintf(fp, "Program %s\n", PROGRAM_NAME);
-	fprintf(fp, "Version %s\n", PROGRAM_VERSION);
+	fprintf(fp, "Name \"%s\"\n", stats.name.c_str());
+	fprintf(fp, "Problem \"%s\"\n", DimacsProblemName(inst));
+	fprintf(fp, "Program \"%s\"\n", PROGRAM_NAME);
+	fprintf(fp, "Version \"%s\"\n", PROGRAM_VERSION);
 	fprintf(fp, "END\n\n");
 
 	fprintf(fp, "SECTION Solutions\n");
-	fprintf(fp, "Solution %.6lf %0.3lf\n", format(sol.obj, inst), Timer::total.elapsed().getSeconds());
+	for(auto tp: stats.solutions)
+		if(stats.isInt)
+			fprintf(fp, "Solution %0.0lf %0.3lf\n", get<0>(tp), get<1>(tp));
+		else
+			fprintf(fp, "Solution %0.6lf %0.3lf\n", get<0>(tp), get<1>(tp));
 	fprintf(fp, "END\n\n");
 
-	fprintf(fp, "SECTION BestSolution\n");
+	fprintf(fp, "SECTION Run\n");
+	fprintf(fp, "Time %0.3lf\n", Timer::total.elapsed().getSeconds());
+	if(stats.isInt) {
+		fprintf(fp, "Primal %0.0lf\n", stats.ub);
+		fprintf(fp, "Dual %0.0lf\n", stats.lb);
+	} else {
+		fprintf(fp, "Primal %0.3lf\n", stats.ub);
+		fprintf(fp, "Dual %0.3lf\n", stats.lb);
+	}
+	fprintf(fp, "END\n\n");
+
+	fprintf(fp, "SECTION FinalSolution\n");
 	fprintf(fp, "Vertices %d\n", nVertices);
 	for(int i = 0; i < inst.n; i++) {
 		if(sol.nodes[i]) fprintf(fp, "V %d\n", i+1);
@@ -664,6 +783,7 @@ int cntReachable(int r, Sol& sol, Inst& inst)
 
 void enlargeStack()
 {
+#if __linux__
 	const rlim_t kStackSize = 128L * 1024L * 1024L;
 	struct rlimit rl;
 	int result;
@@ -678,6 +798,46 @@ void enlargeStack()
 			}
 		}
 	}
+#endif // __linux__
+}
+
+void enableColor(bool enable)
+{
+	if (!enable)
+		return;
+
+	bool terminal;
+#if __unix__
+	terminal = isatty(STDOUT_FILENO);
+#elif _WIN32
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	terminal = (GetFileType(hOut) == FILE_TYPE_CHAR);
+#endif
+	if (!terminal)
+		return;
+
+#if _WIN32
+	// ANSI colors will only work on WIN10 > 14393 in the new console
+	DWORD dwMode = 0;
+	GetConsoleMode(hOut, &dwMode);
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(hOut, dwMode))
+		return;
+
+#endif // _WIN32
+
+	RED = COLOR[1];
+	GREEN = COLOR[2];
+	NORMAL = COLOR[3];
+	CYAN = COLOR[4];
+	YELLOW = COLOR[5];
+	BLUE = COLOR[6];
+	GRAY = COLOR[7];
+	YELLOWBI = COLOR[8];
+	GREENBI = COLOR[9];
+	CYANBI = COLOR[10];
+	PURPLEBI = COLOR[11];
+	BLUEBI = COLOR[12];
 }
 
 Sol loadSol(const char* fn, Inst& inst)
@@ -734,6 +894,7 @@ Sol loadSol(const char* fn, Inst& inst)
 // calls external solver for debugging purposes
 weight_t oracle(Inst& inst)
 {
+#if __linux__
 	FILE* fp;
 	char output[1024];
 	char cmd[256];
@@ -757,6 +918,10 @@ weight_t oracle(Inst& inst)
 	}
 	
 	return response;
+#else
+	fprintf(stderr, "Oracle is not implemented on this platform.\n");
+	return 0.0;
+#endif 
 }
 
 void writeInstance(const char* file, Inst& inst)
@@ -790,7 +955,7 @@ void writeInstance(const char* file, Inst& inst)
 		weight_t w = inst.c[ij];
 		if(inst.bigM > 0 && inst.r == inst.tail[ij])
 			w = 999999999999;
-		fprintf(fp, "E %d %d %ld\n", mapn[inst.tail[ij]]+1, mapn[inst.head[ij]]+1, inst.c[ij]);
+		fprintf(fp, "E %d %d %" PRIu64 "\n", mapn[inst.tail[ij]]+1, mapn[inst.head[ij]]+1, inst.c[ij]);
 	}
 	fprintf(fp, "END\n\n");
 
@@ -798,13 +963,13 @@ void writeInstance(const char* file, Inst& inst)
 	for(int i = 0; i < inst.n; i++) {
 		if(inst.f0[i]) continue;
 		if(inst.p[i] == WMAX)
-			fprintf(fp, "TP %d %ld\n", mapn[i]+1, 999999999999);
+			fprintf(fp, "TP %d %" PRIu64 "\n", mapn[i]+1, 999999999999);
 		else
-			if(inst.p[i] > 0) fprintf(fp, "TP %d %ld\n", mapn[i]+1, inst.p[i]);
+			if(inst.p[i] > 0) fprintf(fp, "TP %d %" PRIu64 "\n", mapn[i]+1, inst.p[i]);
 	}
 
 	fprintf(fp, "Root %d\n", mapn[inst.r]+1);
-	fprintf(fp, "Fixed %ld\n", inst.offset);
+	fprintf(fp, "Fixed %" PRIu64 "\n", inst.offset);
 	fprintf(fp, "END\n\n");
 
 	fclose(fp);
