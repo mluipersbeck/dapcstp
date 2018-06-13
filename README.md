@@ -1,10 +1,11 @@
 # dapcstp
 A solver for the prize-collecting Steiner tree and related problems.
 
-> A dual-ascent-based branch-and-bound framework for the prize-collecting Steiner tree and related problems <br />
-> M. Leitner, I. Ljubić, M. Luipersbeck, M. Sinnl
+> A Dual Ascent-Based Branch-and-Bound Framework for the Prize-Collecting Steiner Tree and Related Problems <br />
+> Markus Leitner, Ivana Ljubić, Martin Luipersbeck, and Markus Sinnl <br />
+> INFORMS Journal on Computing 201830:2 , 402-420 
 
-The technical report can be downloaded [here](http://www.optimization-online.org/DB_FILE/2016/06/5509.pdf), the benchmark instances [here](https://www.dropbox.com/sh/vkvhcc7x5an5v5l/AACv6Ha_1R5LXXJd-Vzr9rKTa?dl=0).
+The article can be downloaded [here](https://doi.org/10.1287/ijoc.2017.0788), the benchmark instances [here](https://www.dropbox.com/sh/vkvhcc7x5an5v5l/AACv6Ha_1R5LXXJd-Vzr9rKTa?dl=0).
 
 ## Dependencies
 
