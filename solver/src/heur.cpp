@@ -6,8 +6,6 @@
  * \date   2013-05-21
  */
 
-using namespace std;
-
 #include "heur.h"
 #include "options.h"
 #include "ds.h"
@@ -16,6 +14,8 @@ using namespace std;
 
 #include <list>
 #include <stack>
+
+using namespace std;
 
 Sol primI(int r, Inst& inst, vector<weight_t>& tw)
 {

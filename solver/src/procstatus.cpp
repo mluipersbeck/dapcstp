@@ -4,45 +4,98 @@
  *
  * \author Mario Ruthmaier 
  * \date   2015-05-03
+ * 
+ * \author Max Resch
+ * \date   2017-12-01
  */
 
 #include "procstatus.h"
 
-u_int ProcStatus::memlimit = numeric_limits<u_int>::max();
-u_int ProcStatus::maxusedmem = 0;
+#include <cmath>
+#include <limits>
+#if _WIN32
+#include <windows.h>
+#include <psapi.h>
+#elif __linux__
+#include <unistd.h>
+#endif
+
+using namespace std;
+
+uint32_t ProcStatus::memlimit = std::numeric_limits<uint32_t>::max();
+uint32_t ProcStatus::maxusedmem = 0;
+
+#if __linux__
+size_t ProcStatus::page_size = sysconf(_SC_PAGESIZE);
+#endif
 
 ProcStatus::ProcStatus()
 {
 
 }
 
-void ProcStatus::setMemLimit( u_int lim )
+void ProcStatus::setMemLimit( int lim )
 {
-	memlimit = lim;
+	if (lim > 0)
+		memlimit = lim;
+	else if (lim < 0)
+		memlimit = available() * 0.9;
 }
 
-u_int ProcStatus::mem()
+uint32_t ProcStatus::mem()
 {
-	unsigned long vsize;
-	{
-		string ignore;
-		ifstream ifs( "/proc/self/stat", std::ios_base::in );
-		ifs >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore
-			>> ignore >> ignore >> vsize; // position 23
-	}
-	double mb = (double) vsize / (1024 * 1024);
-	return ceil( mb );
+#if __linux__
+	uint64_t rss;
+
+	FILE* fd = fopen("/proc/self/statm", "r");
+	// get resource set size
+	fscanf(fd, "%*s %" SCNu64, &rss);
+	fclose(fd);
+
+	// statm provides sizes in number of pages
+	return (rss * ProcStatus::page_size) / (1024*1024);
+#elif _WIN32
+	HANDLE pHandle = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS sMeminfo;
+	GetProcessMemoryInfo(pHandle, &sMeminfo, sizeof(sMeminfo));
+	return sMeminfo.WorkingSetSize / (1024*1024);
+#endif
 }
 
-bool ProcStatus::memOK()
+uint32_t ProcStatus::available()
 {
-	u_int mb = mem();
-	if( mb > maxusedmem ) maxusedmem = mb;
-	if( maxusedmem > memlimit ) {
-		cout << "### Memory-Usage too high: " << maxusedmem << " MB\n";
-		return false;
+#if __linux__
+	uint64_t memory;
+	char buf[128];
+
+	FILE* fd = fopen("/proc/meminfo", "r");
+	while (fgets(buf, 128, fd) != NULL) {
+		// Linux Kernel > 3.14 Provides an explicit estimate
+		if (sscanf(buf, "MemAvailable: %" SCNu64, &memory) == 1)
+			break;
 	}
-	else return true;
+	fclose(fd);
+
+	// statm provides sizes in number of pages
+	return memory / 1024;
+#elif _WIN32
+	MEMORYSTATUSEX sMeminfo;
+	sMeminfo.dwLength = sizeof(sMeminfo);
+	GlobalMemoryStatusEx(&sMeminfo);
+	return sMeminfo.ullAvailPhys / (1024*1024);
+#endif
+}
+
+uint32_t ProcStatus::total()
+{
+#if __linux__
+	return (ProcStatus::page_size * sysconf(_SC_PHYS_PAGES)) / (1024*1024);
+#elif _WIN32
+	MEMORYSTATUSEX sMeminfo;
+	sMeminfo.dwLength = sizeof(sMeminfo);
+	GlobalMemoryStatusEx(&sMeminfo);
+	return sMeminfo.ullTotalPhys / (1024*1024);
+#endif
 }
 
 ProcStatus::~ProcStatus()

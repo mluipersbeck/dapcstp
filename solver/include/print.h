@@ -7,6 +7,7 @@
  */
 
 #include "procstatus.h"
+#include <inttypes.h>
 
 void BBTree::printHeader()
 {
@@ -43,7 +44,7 @@ void BBTree::printBBLine(BBNode* b, NodeState state, bool bExit)
 		outLBNode /= params.precision;
 	}
 
-	printf("%7d %6d %6d %d", nIter, b->depth, (int)PQmin.size(), b->bdir);
+	printf("%7d %6d %6" PRIuPTR " %d", nIter, b->depth, PQmin.size(), b->bdir);
 
 	if(inst.isInt) printf("%13.0lf %13.0lf %13.0lf ", (double)outLBNode, (double)outLB, (double)outUB);
 	else           printf("%13.6lf %13.6lf %13.6lf ", (double)outLBNode, (double)outLB, (double)outUB);
@@ -76,7 +77,7 @@ void BBTree::printRootLine(BBNode* b)
 	printBoundPadded(inst, ub);
 	printf(" %8d %8d", b->n, b->m);
 	printf(" %7.3lf", gapP(format(b->lb, inst), format(ub, inst)));
-	printf(" %8d", ProcStatus::mem());
+	printf(" %" PRIu32, ProcStatus::mem());
 	printf("\n");
 }
 

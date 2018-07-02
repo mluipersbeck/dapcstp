@@ -1,0 +1,42 @@
+// Use UTF8
+#pragma code_page(65001)
+#include <winver.h>
+#include "def.h"
+
+VS_VERSION_INFO	VERSIONINFO
+ FILEVERSION PROGRAM_MAJOR , PROGRAM_MINOR, PROGRAM_MICRO, PROGRAM_BUILD
+ PRODUCTVERSION PROGRAM_MAJOR , PROGRAM_MINOR, PROGRAM_MICRO, PROGRAM_BUILD
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0
+BEGIN
+ BLOCK "StringFileInfo"
+ BEGIN
+  // description in english
+  BLOCK "040904b0"
+  BEGIN
+   VALUE "FileDescription", "DualAscent solver for PCSTP/MWSC"
+   VALUE "FileVersion",	PROGRAM_VERSION
+   VALUE "InternalName", PROJECT_NAME
+   VALUE "LegalCopyright", "AGPLv3"
+   VALUE "OriginalFilename","dapcstp.exe"
+   VALUE "ProductName",	PROGRAM_NAME
+   VALUE "ProductVersion", PROGRAM_VERSION
+   VALUE "Comments", "https://github.com/mluipersbeck/dapcstp"
+  END
+ END
+ BLOCK "VarFileInfo"
+ BEGIN
+  // program language is english
+  VALUE "Translation", 0x0409,0x04b0
+ END
+END
+
+1 ICON "icon.ico"
+1 24 "manifest.xml"
