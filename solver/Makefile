@@ -12,7 +12,7 @@ DEPS      = $(SRCS:.cpp=.d)
 .PHONY: all debug clean
 
 all: CXXFLAGS += -O3 -DNDEBUG
-all: LIBS := -static $(LIBS)
+all: LIBS := $(LIBS)
 all: $(EXEC)
 
 debug: CXXFLAGS += -O0 -g3
